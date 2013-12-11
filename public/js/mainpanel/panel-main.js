@@ -1,5 +1,6 @@
 var disableNow = false;
 var curCallID;
+var curRoom;
 var curUrl = "";
 
 var raw_html='<li class="user ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-thumb ui-btn-up-c" browserid="[tag1]" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c"><div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a class="ui-link-inherit"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a></div><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></div></li>';
@@ -149,7 +150,7 @@ function refleshContacts(people) {
         userLookup.apply(this, [externalId, function(result) {
             var callee = result.callee;
             if (callee) {
-
+                curCallID = callee.objectId;
                 $('.incperson').text($(evt.currentTarget).find(".ui-li-heading").text());
                 $('.incsocial').text(externalId);
                 $("#showPopup").click();
@@ -286,10 +287,12 @@ $(document).ready(function() {
     });
 
     $(".endBtn").on('click', function(evt) {
+        var userId = getUserID();
         removeVideoChat();
-        if (curCallID)
-            hangup(curCallID);
-        curCallID = "";
+        hangup(curCallID||userId);
+        curCallID = null;
+        curRoom = null;
+        sendMessage("event", {data: {action:"endCall"}});
     });
     setTimeout(function() {
         var userId = getUserID();
@@ -297,6 +300,8 @@ $(document).ready(function() {
         sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
     }, 3000);
     $(".syncBtn").on('click', function(evt) {
+        var userId = getUserID();
+        var userFullName = getUserFullName();
         sendMessage("event", {data: {action:"sync"}});
     });
 
@@ -322,6 +327,20 @@ $(document).ready(function() {
             url.val('');
         }
     });
+  
+  var userId = getUserID();
+  var listenRef = new Firebase('https://de-berry.firebaseio-demo.com/call/' + userId);
+  listenRef.on('child_changed', function(snapshot) {
+    var refCallState = snapshot.val()['state'];
+    if (refCallState == "answered") {
+      var roomID = snapshot.name();
+      if ($('#popup:visible')[0] && !$('#chatContainer')[0])
+        injectVideoChat(snapshot.name());
+    }
+  });
+  listenRef.on('child_removed', function(snapshot) {
+    $(".endBtn:visible, #declineBtn:visible").click();
+  });
 });
 
 //for jQuery mobile event
@@ -345,36 +364,40 @@ function call(callee) {
     var callerFullName = getUserFullName();
     outgoingCallRef.push({
         name : callerId,
-        person : callerFullName
+        person : callerFullName,
+        state : "calling"
     });
-    outgoingCallRef.on('child_removed', function(snapshot) {
-        var callerId = snapshot.val()['name'];
-        if (callerId == callerId) {
-            if ($('#popup:visible')[0] && !$('#chatContainer')[0])
+    outgoingCallRef.once('child_changed', function(snapshot) {
+        var refCallState = snapshot.val()['state'];
+        if (refCallState == "answered") {
+          var roomID = snapshot.name();
+          if ($('#popup:visible')[0] && !$('#chatContainer')[0])
                 injectVideoChat(snapshot.name());
-        } else {
-            $(".endBtn").click();
         }
     });
+    outgoingCallRef.once('child_removed', function(snapshot) {
+        $(".endBtn:visible, #declineBtn:visible").click();
+    }); 
 }
 
-function hangup(outgoingId) {
-    var outgoingCallRef = new Firebase('https://de-berry.firebaseio-demo.com/call/' + outgoingId);
+function hangup(calleeId) {
+    if (!calleeId) return;
+    var outgoingCallRef = new Firebase('https://de-berry.firebaseio-demo.com/call/' + calleeId);
     outgoingCallRef.remove();
 }
+
 function answer() {
+    if (!curRoom) return;
     var userId = getUserID();
     var outgoingCallRef = new Firebase('https://de-berry.firebaseio-demo.com/call/' + userId);
-    outgoingCallRef.remove();
-    outgoingCallRef.on('child_removed', function(snapshot) {
-        var roomID = snapshot.name();
-        if ($('#popup:visible')[0] && !$('#chatContainer')[0]) {
-            injectVideoChat(roomID);
-        }
+    outgoingCallRef.child(curRoom).update({
+        state : "answered"
     });
 }
 
 function injectVideoChat(roomId) {
+    curRoom = roomId;
+    sendMessage("event", {data: {action:"setProperty", roomId: curRoom}});
     if (!document.getElementById('chatContainer')) {
         var e = document.createElement('div');
         e.id = 'chatContainer';
@@ -393,7 +416,9 @@ function injectVideoChat(roomId) {
 }
 
 function removeVideoChat() {
+    curRoom = null;
     $('#chatContainer').remove();
+    sendMessage("event", {data: {action:"setProperty", roomId: curRoom}});
 }
 
 function sendMessage(type, data) {
@@ -415,6 +440,7 @@ function onExtensionMessage(e) {
         curUrl = e.detail.data.url;
     }
     else if (e.detail.action == "incoming")	{
+        curRoom = e.detail.room;
         setCallerInfo({fromPerson: e.detail.person, fromSocial: e.detail.social});
     }
     else if ($(".videoChatFrame")[0]) {
