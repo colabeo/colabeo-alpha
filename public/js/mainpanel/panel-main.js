@@ -472,7 +472,9 @@ addEventListener("message", function(e) {
         disableNow = false;
     },1000);
     var evt = JSON.parse(e.data);
-    console.log("onRemoteMessage: ", evt);
+    if (evt.data.url && evt.data.action == "urlChange") {
+        window.open(evt.data.url);
+    }
     sendMessage("event", evt);
 }, false);
 
