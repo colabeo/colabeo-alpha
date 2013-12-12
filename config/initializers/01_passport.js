@@ -41,8 +41,12 @@ passport.deserializeUser(function(id, done) {
 //    done(err, user);
 //  });
 
-  console.log("deserializerUser");
-  var user = Parse.User.current();
-  done(null, user);
-
+    var query = new Parse.Query(Parse.User);
+    query.get(id, {
+        success: function(user) {
+            console.log("deserializerUser - user id - " + id);
+            console.log("deserializerUser - parse user - " + JSON.stringify(user));
+            done(null, user);
+        }
+    });
 });
