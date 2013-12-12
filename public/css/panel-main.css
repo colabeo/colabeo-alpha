@@ -30,6 +30,17 @@
     top: 1px;
 }
 
+body.mobile .ui-dialog-contain {
+    margin-top: -30px;
+}
+body.mobile #callcontent {
+    height: 500px;
+}
+
+body.mobile .syncBtn {
+    display: none;
+}
+
 #chatContainer {
     width: 100%;
     height: 300px;

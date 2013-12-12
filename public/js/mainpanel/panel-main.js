@@ -2,6 +2,8 @@ var disableNow = false;
 var curCallID;
 var curRoom;
 var curUrl = "";
+var incomingCallRef;
+var curSnapshot;
 
 var raw_html='<li class="user ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-thumb ui-btn-up-c" browserid="[tag1]" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c"><div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a class="ui-link-inherit"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a></div><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></div></li>';
 
@@ -355,6 +357,12 @@ $(document).on('pageinit', function(e) {
         console.log(evt.target.text);
         demobo.mobile.fireInputEvent('gotoUrl', evt.target.text);
     });
+  
+    if (isMobile()) {
+		  $('body').addClass('mobile');
+      preloadRingtone();
+      initializeIncomingCall();
+	  }
 });
 
 function call(callee) {
@@ -402,7 +410,7 @@ function injectVideoChat(roomId) {
         var e = document.createElement('div');
         e.id = 'chatContainer';
         e.style.position = 'fixed';
-        e.style.bottom = '30px';
+        e.style.bottom = '-30px';
         e.style.right = '0px';
         e.style.zIndex = '999';
         document.getElementById('popup').appendChild(e);
@@ -422,7 +430,8 @@ function removeVideoChat() {
 }
 
 function sendMessage(type, data) {
-    if (!demoboBody)
+    if (isMobile()) return;
+    if (!window.demoboBody)
         return;
     var evt = new CustomEvent("FromKoala", {
         detail : {
@@ -431,6 +440,10 @@ function sendMessage(type, data) {
         }
     });
     demoboBody.dispatchEvent(evt);
+}
+
+function isMobile() {
+	return /mobile|android/i.test (navigator.userAgent);
 }
 
 function onExtensionMessage(e) {
@@ -464,7 +477,59 @@ addEventListener("message", function(e) {
 }, false);
 
 function setCallerInfo(args) {
+    console.log("setCallerInfo");
     $('.incperson').text(args.fromPerson);
     $('.incsocial').text(args.fromSocial);
     window.location = "#p";
 }
+
+
+
+
+function initializeIncomingCall() {
+	if (incomingCallRef) {
+		incomingCallRef.off('child_added', onAdd);
+		incomingCallRef.off('child_removed', onRemove);
+		incomingCallRef.off('child_changed', onRemove);
+	}
+	incomingCallRef = new Firebase('https://de-berry.firebaseio-demo.com/call/' + getUserID());
+	incomingCallRef.on('child_added', onAdd);
+	incomingCallRef.on('child_removed', onRemove);
+	incomingCallRef.on('child_changed', onRemove);
+}
+
+function onAdd(snapshot) {
+	curSnapshot = snapshot;
+	startRingtone();
+}
+
+function onRemove(snapshot) {
+	stopRingtone();
+}
+function preloadRingtone() {
+	if (document.getElementById('ringtone'))
+		return;
+	var e = document.createElement('video');
+	e.controls = true;
+	e.id = 'ringtone';
+	e.loop = true;
+	e.style.display = 'none';
+	e.innerHTML = '<source src="http://rc1-dot-de-mobo.appspot.com/audio/Marimba.mp3" type="audio/mpeg">';
+	document.body.appendChild(e);
+}
+
+function stopRingtone() {
+	isCalling = false;
+	var e = document.getElementById('ringtone');
+	e && (e.pause() || (e.currentTime = 0));
+};
+function startRingtone() {
+  console.log("startRing");
+	isCalling = true;
+	var e = document.getElementById('ringtone');
+	e && e.play();
+	setTimeout(function() {
+    curRoom = curSnapshot.name();
+    setCallerInfo({fromPerson: curSnapshot.val().person, fromSocial: curSnapshot.val().source});
+	}, 100);
+};
