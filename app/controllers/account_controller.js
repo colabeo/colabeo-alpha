@@ -38,6 +38,29 @@ AccountController.loginForm = function() {
   this.render();
 };
 
+AccountController.forgetPasswordForm = function() {
+  console.log("forget Password form loading");
+  this.render();
+};
+
+AccountController.forgetPassword = function() {
+    console.log("forget Password calling " + this.param('email'));
+    var self = this;
+    Parse.User.requestPasswordReset(this.param("email"), {
+        success: function() {
+            // Password reset request was sent successfully
+            self.redirect('/');
+        },
+        error: function(error) {
+            // Show the error message somewhere
+            alert("Error: " + error.code + " " + error.message);
+        }
+    });
+    
+};
+
+
+
 AccountController.create = function() {
   var account = new Account();
   console.log("shit");
