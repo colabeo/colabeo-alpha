@@ -33,14 +33,20 @@ passport.use(new LocalStrategy({
 
 passport.serializeUser(function(user, done) {
   console.log("serializeUser - ", user.id);
-  done(null, user.id);
+  done(null, user._sessionToken);
 });
 
-passport.deserializeUser(function(id, done) {
+passport.deserializeUser(function(_sessionToken, done) {
 //  Account.findById(id, function (err, user) {
 //    done(err, user);
 //  });
 
+    console.log("sessionToken: " + _sessionToken);
+    Parse.User.become(_sessionToken);
+    var user = Parse.User.current();
+    done(null, user);
+  
+    /*
     var query = new Parse.Query(Parse.User);
     query.get(id, {
         success: function(user) {
@@ -49,4 +55,5 @@ passport.deserializeUser(function(id, done) {
             done(null, user);
         }
     });
+    */
 });

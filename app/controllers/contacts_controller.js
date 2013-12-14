@@ -12,7 +12,11 @@ ContactsController.add = function() {
         lastname : this.param("lastName"),
         firstname : this.param("firstName")
     };
+    
+    console.log("sessionToken: " + this.req.user._sessionToken);
+    Parse.User.become(this.req.user._sessionToken);
     var user = Parse.User.current();
+    user.initFirebaseRef(user.id, serverRootRef);
     var self = this;
 
     user.importContactByEmail(newContact, function() {

@@ -10,7 +10,11 @@ MainPanelController.show = function() {
         return this.res.redirect("/login");
     console.log("user = " + this.req.user.id + this.req.user.get("email"));
 
-    var parseUser=Parse.User.current(); //this.req.user is just a reference of Parse.User.current()
+    console.log("sessionToken: " + this.req.user_sessionToken);
+    Parse.User.become(this.req.user_sessionToken);
+    var parseUser = Parse.User.current();
+  
+    //var parseUser=Parse.User.current(); //this.req.user is just a reference of Parse.User.current()
 //    console.log(parseUser);
     parseUser.initFirebaseRef(parseUser.id, serverRootRef);
 
