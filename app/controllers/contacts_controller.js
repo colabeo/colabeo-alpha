@@ -12,49 +12,61 @@ ContactsController.add = function() {
         lastname : this.param("lastName"),
         firstname : this.param("firstName")
     };
-    
-    console.log("sessionToken: " + this.req.user._sessionToken);
-    Parse.User.become(this.req.user._sessionToken);
-    var user = Parse.User.current();
-    user.initFirebaseRef(user.id, serverRootRef);
-    var self = this;
 
-    user.importContactByEmail(newContact, function() {
-    
-        var query = new Parse.Query(Parse.User);
-        query.equalTo( "email", newContact.email);  // find all the same user
-        query.first({
-            success: function(results) {
-                //console.log("Results" + JSON.stringify(results));
-                if ( results == undefined )  {
-                    sendInviteEmail(user, newContact);
+    var user = this.req.user;
+
+    user.initFirebaseRef = function(uid, serverRootRef) {
+        var self=this;
+        this.fireBaseRef = serverRootRef.child('users').child(uid);
+        this.fireBaseIndexRef=serverRootRef.child('index');
+        this.fireBaseContactRef=this.fireBaseRef.child('contacts');
+        this.fireBaseRef.child('email').once('value', function(snapshot) {
+            if (snapshot.val()==null || snapshot.val()=='unknown')
+            {
+                if (self.attributes.email)
+                {
+                    console.log('Init user FirebaseRef, email=' + self.attributes.email)
+                    self.fireBaseRef.update({email: self.attributes.email});
                 }
-                else {
-                    sendContactNotification(user,newContact);
+                else
+                {
+                    console.log('Init user FirebaseRef, email=unknown')
+                    self.fireBaseRef.update({email: 'unknown'});
                 }
             }
-        }); //End Query.first
-    }); //End User.importContactByEmail
-};  //End ContactsController.Add
+        });
+    };
+    user.importContactByEmail = function(newContact, done) {
+        var self = this;
+        this.fireBaseContactRef.once('value', function (snapshot) {
+            var contactList = snapshot.val();
+            var conflict = false;
+            for (var id in contactList) {
+                console.log("contact in contactList" + JSON.stringify(id));
+                if (contactList[id].email == newContact.email) {
+                    conflict = true;
+                }
+            }
 
-  
-var sendInviteEmail = function(user, newContact) {
-        var subject = user.get("firstname") + " has just invited you to chat with Colabeo";
-        var text = "Hi " + newContact.firstname + ",\n\n" + user.get("firstname") + " has just invited you to use Colabeo. Please click on this link to add Colabeo extension to your chrome browser: www.colabeo.com/install.html Talk to you soon!";
-        var to = newContact.email;
-        var from = user.get("email");
-        sendEmail(to,from,subject,text); 
-};
+            if (!conflict) {
+                console.log("new Contact" + JSON.stringify(newContact));
+                self.fireBaseContactRef.push(newContact, function () {
+                    console.log('contact added!');
+                    done();
+                });
+            } else {
 
-var sendContactNotification = function(user,newContact) {
-        var subject = user.get("firstname") + " has just added you their contact list. Start calling today!"
-        var text = "Hi " + newContact.firstname + ",\n\n" + user.get("firstname") + " has just added you to their Colabeo contact list. Open your browser and call them back."
-        var to = newContact.email;
-        var from = user.get("email");
-        sendEmail(to,from,subject,text);
-};
+            }
+        });
+    };
 
-var sendEmail = function(to,from,subject,text) {
+    console.log('/contact/add - this.res.user', this.req.user);
+    console.log('/contact/add - Parse.User.current()', Parse.User.current());
+
+    var self = this;
+
+    user.initFirebaseRef(user.id, serverRootRef);
+    user.importContactByEmail(newContact, function() {
         var API_USERNAME = "chapman";
         var API_PASSWORD = "qwerty23";
 
@@ -62,23 +74,22 @@ var sendEmail = function(to,from,subject,text) {
 
         var smtpapiHeaders = new sendgrid.SmtpapiHeaders();
         smtpapiHeaders.addFilterSetting('subscriptiontrack', 'enable', '0');
+
         sendgrid.send({
             smtpapi: smtpapiHeaders,
-            to:       to,
-            from:     from,
-            subject:  subject,
-            text : text 
+            to:       newContact.email,
+            from:     user.get("email"),
+            subject:  "Hello from Colabeo",
+            text : "Please install Colabeo"
         }, function(err, json) {
             if (err) {
                 console.error(err);
             }
             else
                 console.log(json);
-            //self.res.json(json);
-        }); 
+            self.res.json(json);
+        });
+    });
 };
-  
-
-
 
 module.exports = ContactsController;
