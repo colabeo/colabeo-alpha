@@ -10,14 +10,14 @@ MainPanelController.show = function() {
         return this.res.redirect("/login");
     console.log("user = " + this.req.user.id + this.req.user.get("email"));
 
-    var parseUser=Parse.User.current(); //this.req.user is just a reference of Parse.User.current()
-//    console.log(parseUser);
-    parseUser.initFirebaseRef(parseUser.id, serverRootRef);
-
-    // Add connector
-    var socialConnector=new YammerConnector();
-    socialConnector.init('1508830799', 'JELIFQKXZ7wlEZgBk3Kamw'); //hardcoded id and token(yammer).
-    parseUser.addSocialConnector('yammer', socialConnector);
+//    var parseUser=Parse.User.current(); //this.req.user is just a reference of Parse.User.current()
+////    console.log(parseUser);
+//    parseUser.initFirebaseRef(parseUser.id, serverRootRef);
+//
+//    // Add connector
+//    var socialConnector=new YammerConnector();
+//    socialConnector.init('1508830799', 'JELIFQKXZ7wlEZgBk3Kamw'); //hardcoded id and token(yammer).
+//    parseUser.addSocialConnector('yammer', socialConnector);
 
     /*
     // Import contacts
