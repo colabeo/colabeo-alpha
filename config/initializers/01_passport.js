@@ -43,15 +43,15 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 
-passport.deserializeUser(function(_sessionToken, done) {
+passport.deserializeUser(function(id, done) {
 //  Account.findById(id, function (err, user) {
 //    done(err, user);
 //  });
-
-    console.log("sessionToken: " + _sessionToken);
-    Parse.User.become(_sessionToken);
-    var user = Parse.User.current();
-    done(null, user);
+//
+//    console.log("sessionToken: " + _sessionToken);
+//    Parse.User.become(_sessionToken);
+//    var user = Parse.User.current();
+//    done(null, user);
 
     var query = new Parse.Query(Parse.User);
     query.get(id, {

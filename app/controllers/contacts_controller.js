@@ -38,26 +38,23 @@ ContactsController.add = function() {
     };
     user.importContactByEmail = function(newContact, done) {
         var self = this;
-        this.fireBaseContactRef.once('value', function (snapshot) {
-            var contactList = snapshot.val();
-            var conflict = false;
-            for (var id in contactList) {
-                console.log("contact in contactList" + JSON.stringify(id));
-                if (contactList[id].email == newContact.email) {
-                    conflict = true;
+        var query = new Parse.Query(Parse.User);
+        query.equalTo( "email", newContact.email);  // find all the same user
+        query.first({
+            success: function(results) {
+                //console.log("Results" + JSON.stringify(results));
+                if ( results == undefined )  {
+                    sendInviteEmail(user, newContact, function(json) {
+                        done(json);
+                    });
+                }
+                else {
+                    sendContactNotification(user, newContact, function(json) {
+                        done(json);
+                    });
                 }
             }
-
-            if (!conflict) {
-                console.log("new Contact" + JSON.stringify(newContact));
-                self.fireBaseContactRef.push(newContact, function () {
-                    console.log('contact added!');
-                    done();
-                });
-            } else {
-
-            }
-        });
+        }); //End Query.first
     };
 
     console.log('/contact/add - this.res.user', this.req.user);
@@ -66,29 +63,50 @@ ContactsController.add = function() {
     var self = this;
 
     user.initFirebaseRef(user.id, serverRootRef);
-    user.importContactByEmail(newContact, function() {
-        var API_USERNAME = "chapman";
-        var API_PASSWORD = "qwerty23";
+    user.importContactByEmail(newContact, function(json) {
+        self.res.json(json);
+    });
+};
 
-        var sendgrid  = require('sendgrid')(API_USERNAME, API_PASSWORD);
+var sendInviteEmail = function(user, newContact,done) {
+    var subject = user.get("firstname") + " has just invited you to chat with Colabeo";
+    var text = "Hi " + newContact.firstname + ",\n\n" + user.get("firstname") + " has just invited you to use Colabeo. Please click on this link to add Colabeo extension to your chrome browser: www.colabeo.com/install.html Talk to you soon!";
+    var to = newContact.email;
+    var from = user.get("email");
+    sendEmail(to,from,subject,text,done);
+};
 
-        var smtpapiHeaders = new sendgrid.SmtpapiHeaders();
-        smtpapiHeaders.addFilterSetting('subscriptiontrack', 'enable', '0');
+var sendContactNotification = function(user,newContact,done) {
+    var subject = user.get("firstname") + " has just added you their contact list. Start calling today!"
+    var text = "Hi " + newContact.firstname + ",\n\n" + user.get("firstname") + " has just added you to their Colabeo contact list. Open your browser and call them back."
+    var to = newContact.email;
+    var from = user.get("email");
+    sendEmail(to,from,subject,text,done);
+};
 
-        sendgrid.send({
-            smtpapi: smtpapiHeaders,
-            to:       newContact.email,
-            from:     user.get("email"),
-            subject:  "Hello from Colabeo",
-            text : "Please install Colabeo"
-        }, function(err, json) {
-            if (err) {
-                console.error(err);
-            }
-            else
-                console.log(json);
-            self.res.json(json);
-        });
+var sendEmail = function(to,from,subject,text,done) {
+    var API_USERNAME = "chapman";
+    var API_PASSWORD = "qwerty23";
+
+    var sendgrid  = require('sendgrid')(API_USERNAME, API_PASSWORD);
+
+    var smtpapiHeaders = new sendgrid.SmtpapiHeaders();
+    smtpapiHeaders.addFilterSetting('subscriptiontrack', 'enable', '0');
+    sendgrid.send({
+        smtpapi: smtpapiHeaders,
+        to:       to,
+        from:     from,
+        subject:  subject,
+        text : text
+    }, function(err, json) {
+        if (err) {
+            console.error(err);
+            done({ message : "error" });
+        }
+        else {
+            console.log(json);
+            done(json);
+        }
     });
 };
 
