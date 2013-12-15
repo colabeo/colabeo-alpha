@@ -63,9 +63,8 @@ ContactsController.add = function() {
                                     done(json);
                                 });
                             }
-                            else 
-                                //Removing from alpha to lessen e-mail load
-                                //sendContactNotification(user, newContact, function(json) {
+                            else {
+                                sendContactNotification(user, newContact, function(json) {
                                     done(json);
                                 });
                             }
