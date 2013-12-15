@@ -31,6 +31,7 @@ AccountController.new = function() {
 
 AccountController.registrationForm = function() {
     var message = this.req.flash('error');
+    console.log("Message from reg form " + message);
     this.render({ message : message });
 };
 
@@ -100,7 +101,7 @@ AccountController.signup = function() {
             // Show the error message somewhere and let the user try again.
             // alert("Error: " + error.code + " " + error.message);
             self.req.flash('error', error.message);
-            self.redirect('/signup');
+            self.redirect('/register');
         }
     });
 }
