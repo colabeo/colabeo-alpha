@@ -36,25 +36,45 @@ ContactsController.add = function() {
             }
         });
     };
+
     user.importContactByEmail = function(newContact, done) {
         var self = this;
-        var query = new Parse.Query(Parse.User);
-        query.equalTo( "email", newContact.email);  // find all the same user
-        query.first({
-            success: function(results) {
-                //console.log("Results" + JSON.stringify(results));
-                if ( results == undefined )  {
-                    sendInviteEmail(user, newContact, function(json) {
-                        done(json);
-                    });
-                }
-                else {
-                    sendContactNotification(user, newContact, function(json) {
-                        done(json);
-                    });
+        this.fireBaseContactRef.once('value', function (snapshot) {
+            var contactList = snapshot.val();
+            var conflict = false;
+            for (var id in contactList) {
+                console.log("contact in contactList" + JSON.stringify(id));
+                if (contactList[id].email == newContact.email) {
+                    conflict = true;
                 }
             }
-        }); //End Query.first
+
+            if (!conflict) {
+                console.log("new Contact" + JSON.stringify(newContact));
+                self.fireBaseContactRef.push(newContact, function () {
+                    console.log('contact added!');
+                    var query = new Parse.Query(Parse.User);
+                    query.equalTo( "email", newContact.email);  // find all the same user
+                    query.first({
+                        success: function(results) {
+                            //console.log("Results" + JSON.stringify(results));
+                            if ( results == undefined )  {
+                                sendInviteEmail(user, newContact, function(json) {
+                                    done(json);
+                                });
+                            }
+                            else {
+                                sendContactNotification(user, newContact, function(json) {
+                                    done(json);
+                                });
+                            }
+                        }
+                    }); //End Query.first
+                });
+            } else {
+
+            }
+        });
     };
 
     console.log('/contact/add - this.res.user', this.req.user);
