@@ -436,7 +436,7 @@ function injectVideoChat(roomId) {
     var i = document.createElement('iframe');
     $("#flip-audio").val('true').slider("refresh");
     var video = $("#flip-video").val();
-    i.src = 'https://koalabearate.appspot.com/?r=' + roomId + '&video=' + video;
+    i.src = 'https://koalabearate.appspot.com/?r=' + roomId + '&v=' + video;
     i.className = 'videoChatFrame';
     i.id = roomId;
     i.style.width = '100%';
