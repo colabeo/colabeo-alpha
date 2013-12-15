@@ -21,6 +21,7 @@ passport.use(new LocalStrategy({
 //              parseUser.initFirebaseRef(parseUser.id, serverRootRef);
 //              console.log("has import contact by email function ", parseUser.importContactByEmail);
 //              return done(null, parseUser);
+
                 return done(null, user);
             },
             error: function(user, error) {

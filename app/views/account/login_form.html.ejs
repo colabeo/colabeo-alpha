@@ -30,6 +30,12 @@
 <br />
 <div class="container eternity-form">
     <div class="login-form-section">
+        <% if ((message) && (message != "")) { %>
+        <div class="login-form-links link2 animated bounceIn" style="">
+            <span><%=message%></span>
+        </div>
+        <% } %>
+
         <div class="login-content animated bounceIn">
             <form method="POST" action="/login">
                 <div class="section-title">

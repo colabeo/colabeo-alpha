@@ -30,12 +30,14 @@ AccountController.new = function() {
 };
 
 AccountController.registrationForm = function() {
-    this.render();
+    var message = this.req.flash('error');
+    this.render({ message : message });
 };
 
 AccountController.loginForm = function() {
   console.log("login form - authenticated - " + this.req.isAuthenticated());
-  this.render();
+  var message = this.req.flash('error');
+  this.render({ message : message });
 };
 
 AccountController.forgetPasswordForm = function() {
@@ -97,6 +99,8 @@ AccountController.signup = function() {
         error: function(user, error) {
             // Show the error message somewhere and let the user try again.
             // alert("Error: " + error.code + " " + error.message);
+            self.req.flash('error', error.message);
+            self.redirect('/signup');
         }
     });
 }
@@ -105,7 +109,8 @@ AccountController.login = function() {
   var self = this;
   passport.authenticate('local', {
     successRedirect: '/',
-    failureRedirect: this.urlFor({ action: 'login' }) }
+    failureRedirect: this.urlFor({ action: 'login' }),
+    failureFlash: true }
   )(this.__req, this.__res, this.__next);
 };
 
