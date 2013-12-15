@@ -15,7 +15,13 @@ passport.use(new LocalStrategy({
         console.log("password - " + password);
         Parse.User.logIn(email, password, {
             success: function(user) {
-                return done(null, user);
+                if (user.emailVerified)
+                    return done(null, user);
+                else {
+                    var message = "email is not verified.";
+                    return done(null, false, message);
+                }
+
             },
             error: function(user, error) {
                 console.log("login - error" + JSON.stringify(error));
