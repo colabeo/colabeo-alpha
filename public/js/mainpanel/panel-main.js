@@ -6,7 +6,7 @@ var incomingCallRef;
 var curSnapshot;
 
 //var raw_html='<li class="user ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-thumb ui-btn-up-c" browserid="[tag1]" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c"><!--<div class="nameInitial">JL</div>--><div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a class="ui-link-inherit"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a></div></div></li>';
-var raw_html='<li><a class="user" browserid="[tag1]"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a><a class="deleteButton"></a></li>';
+var raw_html='<li><a class="user" browserid="[tag1]"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a><a class="deleteButton" contactid="[tag0]"></a></li>';
 
 //<a class="deleteButton ui-icon ui-icon-delete ui-icon-shadow"></a>
 // [tag1]   -   browserID(berryID)
@@ -130,7 +130,8 @@ function refleshContacts(people) {
             var fullName = people[i].firstname + ' ' + people[i].lastname;
             var avatar = "https://mug0.assets-yammer.com/mugshot/images/48x48/no_photo.png";
             cooked_html=raw_html;
-            cooked_html=raw_html.replace("[tag1]", people[i].email);
+            cooked_html=raw_html.replace("[tag0]", i);
+            cooked_html=cooked_html.replace("[tag1]", people[i].email);
             cooked_html=cooked_html.replace("[tag2]", avatar);
             cooked_html=cooked_html.replace("[tag3]", fullName);
             cooked_html=cooked_html.replace("[tag4]", people[i].email);
@@ -145,8 +146,8 @@ function refleshContacts(people) {
         makeCall.call(self, evt);
     });
     $(".deleteButton").on('click', function(evt) {
-        alert("delete");
-        console.log(evt);
+        removeContact(evt);
+        //console.log(evt);
     });
 
     function makeCall(evt) {
@@ -188,6 +189,16 @@ function refleshContacts(people) {
                 done(data);
             }
         });
+    }
+
+    function removeContact(evt) {
+        var contactId = $(evt.currentTarget).attr('contactID');
+        var userId = getUserID();
+        var contactRef = new BerryBase('https://koalalab-berry.firebaseio.com/', userId);
+        contactRef.removeContact(contactId, function(){
+            console.log("Contact removed.");
+        });
+
     }
 
     // check Firebase-index, find out the real Colabeo uid for this contact.
@@ -245,6 +256,22 @@ BerryBase.prototype.getContacts = function(callback)
         }
     });
 }
+
+BerryBase.prototype.removeContact = function(contactId, done) {
+    var self=this;
+    this.ContactRef = this.FirebaseMyRef.child('contacts/' + contactId);
+    this.ContactRef.remove(function(error) {
+        if (error) {
+            console.log('Synchronization failed.');
+            done();
+        }
+        else {
+            console.log('Synchronization succeeded.');
+            done();
+        }
+    });
+}
+
 
 //=================================================================
 
