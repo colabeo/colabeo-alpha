@@ -5,8 +5,10 @@ var curUrl = "";
 var incomingCallRef;
 var curSnapshot;
 
-var raw_html='<li class="user ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-thumb ui-btn-up-c" browserid="[tag1]" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c"><div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a class="ui-link-inherit"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a></div><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></div></li>';
+//var raw_html='<li class="user ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-thumb ui-btn-up-c" browserid="[tag1]" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c"><!--<div class="nameInitial">JL</div>--><div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a class="ui-link-inherit"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a></div></div></li>';
+var raw_html='<li><a class="user" browserid="[tag1]"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a><a class="deleteButton"></a></li>';
 
+//<a class="deleteButton ui-icon ui-icon-delete ui-icon-shadow"></a>
 // [tag1]   -   browserID(berryID)
 // [tag2]   -   image link
 // [tag3]   -   full name
@@ -105,7 +107,7 @@ function refleshContacts(people) {
     var self=this;
     console.log('reflesh contacts called');
     $(".user").off('click');    //de-attach events
-
+    $(".deleteButton").off('click'); 
     var html_content="";
     for(var i in people) {  //enum people list and generate html content
         // console.log("var " + i+" = "+people[i]);
@@ -136,11 +138,15 @@ function refleshContacts(people) {
         }
     }
 
-    $("#contactlist").html(html_content);
+    $("#contactlist").html(html_content).listview('refresh');
 
     //attach events
     $(".user").on('click', function(evt) {
         makeCall.call(self, evt);
+    });
+    $(".deleteButton").on('click', function(evt) {
+        alert("delete");
+        console.log(evt);
     });
 
     function makeCall(evt) {
@@ -161,6 +167,10 @@ function refleshContacts(people) {
             else {
                 // TODO: The user is not an existing colabeo user, add your own logic abt what to do.
                 // if (result.facebook) {...}
+                $.mobile.showPageLoadingMsg("a", "Please invite this user to install Colabeo.", true);
+                setTimeout(
+                  $.mobile.hidePageLoadingMsg, 2000
+                );
                 console.log('The user you are calling is not an colabeo user, I don\'t know what to do.');
                 console.log(result);
             }
@@ -268,8 +278,8 @@ $(document).ready(function() {
 
     var userFullName = getUserFullName();
 
-    $('.ui-input-text.ui-body-c').attr('placeholder', 'Welcome, ' + userFullName.split(' ')[0] + '!');
-
+    //$('.ui-input-text.ui-body-c').attr('placeholder', 'Welcome, ' + userFullName.split(' ')[0] + '!');
+    $('.ui-input-text.ui-body-c').attr('placeholder', 'Search');
     $('#saveContactBtn').click( function(e) {
         e.preventDefault();
         $.ajax({

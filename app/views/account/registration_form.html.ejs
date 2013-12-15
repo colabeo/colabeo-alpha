@@ -33,6 +33,12 @@
 <br />
 <div class="container eternity-form">
     <div class="registration-form-section">
+      <% if ((message) && (message != "")) { %>
+      <div class="login-form-links link2 animated bounceIn" style="">
+          <span><%=message%></span>
+      </div>
+      <% } %>
+
         <form method="POST" action="/signup">
             <div class="section-title reg-header animated fadeInDown">
                 <h3>Get your Account Here </h3>
