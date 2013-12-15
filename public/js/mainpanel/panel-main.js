@@ -301,6 +301,24 @@ $(document).ready(function() {
         var userFullName = getUserFullName();
         sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
     }, 3000);
+    
+    $( "#flip-audio" ).bind( "change", function(event, ui) {
+      var action = "offAudio";
+      if ($("#flip-audio").val() == "true") {
+        action = "onAudio";
+      }
+      if ($(".videoChatFrame")[0]) 
+        $(".videoChatFrame")[0].contentWindow.postMessage(JSON.stringify({type:"command",action:action}),"*");
+    });
+    $( "#flip-video" ).bind( "change", function(event, ui) {
+      var action = "offVideo";
+      if ($("#flip-video").val() == "true") {
+        action = "onVideo";
+      }
+      if ($(".videoChatFrame")[0]) 
+        $(".videoChatFrame")[0].contentWindow.postMessage(JSON.stringify({type:"command",action:action}),"*");
+    });
+  
     $(".syncBtn").on('click', function(evt) {
         var userId = getUserID();
         var userFullName = getUserFullName();
@@ -416,7 +434,9 @@ function injectVideoChat(roomId) {
         document.getElementById('popup').appendChild(e);
     }
     var i = document.createElement('iframe');
-    i.src = 'https://koalabearate.appspot.com/?r=' + roomId;
+    $("#flip-audio").val('true').slider("refresh");
+    var video = $("#flip-video").val();
+    i.src = 'https://koalabearate.appspot.com/?r=' + roomId + '&v=' + video;
     i.className = 'videoChatFrame';
     i.id = roomId;
     i.style.width = '100%';

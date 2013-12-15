@@ -38,10 +38,19 @@
     </div>-->
     <!-- /navbar -->
     <div data-role="header" style="display: none">
-        <h1>Contact List</h1>
+        <h1><%=user.get("firstname")%>'s Colabeo</h1>
     </div>
     <!-- /header -->
     <div data-role="content">
+        <p>
+        <div data-role="header" data-theme="d">
+          <a onclick="window.location='/logout'" data-inline="true">log out</a>
+          <h1>All Contacts</h1>
+          <a href="#popupAddContact" data-inline="true" data-rel="popup" data-position-to="window" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-inline ui-btn-up-c" aria-haspopup="true" aria-owns="popupLogin" aria-expanded="false">
+            <span class="ui-btn-inner"><span class="ui-btn-text">+</span></span>
+          </a>
+        </div> 
+        </p>
         <ul id="contactlist" data-role="listview" data-inset="true" data-filter="true">
 
         </ul>
@@ -55,11 +64,6 @@
         </p>
         -->
     </div>
-
-
-    <a href="#popupAddContact" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-inline ui-btn-up-c" aria-haspopup="true" aria-owns="popupLogin" aria-expanded="false"><span class="ui-btn-inner"><span class="ui-btn-text">Add Contact</span></span></a>
-
-    <button onclick="window.location='/logout'">log out</button>
 
     <div data-role="popup" id="popupAddContact" data-theme="b" data-overlay-theme="a" class="ui-corner-all ui-popup ui-body-a ui-overlay-shadow">
         <form id="addContactForm">
@@ -132,12 +136,31 @@
                 <p class="incsocial">
                 </p>
             </div>
-            <p>
+            <div>
                 <a href="#one" class="endBtn" style="color: white; margin-top: 40px;">End</a>
-            </p>
-            <p>
-                <a href="#" class="syncBtn" style="color: white; margin-top: 110px;">Sync</a>
-            </p>
+            </div>
+            <div data-role="navbar">
+		          <ul>
+                <li>
+                  <label for="flip-video" data-inline="true">Video</label>
+                  <select name="flip-video" id="flip-video" data-role="slider" style="display: inline=" data-mini="true">
+                    <option value="false">Off</option>
+                    <option value="true" selected>On</option>
+                  </select>
+                </li>
+                <li>
+                  <a href="#" class="syncBtn" style="color: white; margin-top: 25px;">Sync</a>
+                </li>  
+                <li>
+                  <label for="flip-audio" data-inline="true">Audio</label>
+                  <select name="flip-audio" id="flip-audio" data-role="slider" data-inline="true" data-mini="true">
+                    <option value="false">Off</option>
+                    <option value="true" selected>On</option>
+                  </select>
+                </li>
+                
+              </ul>  
+            </div>
         </div>
     </div>
     <!-- /content -->
