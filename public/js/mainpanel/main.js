@@ -144,6 +144,8 @@ Famous(function(require) {
     var userInfoFirebase = null;
     var userInfo = {};
 
+    var userId = "1"; // Lap's colabeo user id.
+
     function SparkItem(options) {
         FeedItem.apply(this, arguments);
         if(options) this.setOptions(options);
@@ -172,22 +174,42 @@ Famous(function(require) {
     };
 
     SparkItem.prototype.setContent = function(content) {
-        var userId = content['author'];
-        var iconUrl = 'content/default-pic.gif';
+        var contactId = content['contactId'];
+        var iconUrl = 'https://mug0.assets-yammer.com/mugshot/images/48x48/no_photo.png';
         if(userId in userInfo) {
             iconUrl = userInfo[userId]['pic'];
         }
         else {
-            var userRef = userInfoFirebase.child('people').child(userId);
-            userRef.on('value', function(dataSnapshot) {
-                userInfo[userId] = dataSnapshot.val();
-                if(userInfo[userId]['pic']) this.setContent(content);
-            }.bind(this));
+//            var userRef = userInfoFirebase.child('people').child(userId);
+//            userRef.on('value', function(dataSnapshot) {
+//                userInfo[userId] = dataSnapshot.val();
+//                if(userInfo[userId]['pic']) this.setContent(content);
+//            }.bind(this));
         }
 
-        var feedContent = {icon: iconUrl, source: content['by'], time: content['timestamp'], text: content['content']};
+        var name = content['firstname'] + " " + content['lastname'];
+
+        var feedContent = {icon: iconUrl, source: name, time: Date.now(), text: content['email'] };
         return FeedItem.prototype.setContent.call(this, feedContent);
     };
+
+//    SparkItem.prototype.setContent = function(content) {
+//        var userId = content['author'];
+//        var iconUrl = 'content/default-pic.gif';
+//        if(userId in userInfo) {
+//            iconUrl = userInfo[userId]['pic'];
+//        }
+//        else {
+//            var userRef = userInfoFirebase.child('people').child(userId);
+//            userRef.on('value', function(dataSnapshot) {
+//                userInfo[userId] = dataSnapshot.val();
+//                if(userInfo[userId]['pic']) this.setContent(content);
+//            }.bind(this));
+//        }
+//
+//        var feedContent = {icon: iconUrl, source: content['by'], time: content['timestamp'], text: content['content']};
+//        return FeedItem.prototype.setContent.call(this, feedContent);
+//    };
 
     // define the options
     var headerOptions = {
@@ -219,8 +241,8 @@ Famous(function(require) {
     FamousEngine.pipe(myApp);
 
     // setup Firebase
-    var firebase = new Firebase('https://firefeed.firebaseio.com/');
-    //var firebase = new Firebase('https://koalalab-berry.firebaseio.com/');
+    //var firebase = new Firebase('https://firefeed.firebaseio.com/');
+    var firebase = new Firebase('https://koalalab-berry.firebaseio.com/users/tZNo7HwWLl/');
     SparkItem.setFirebase(firebase);
 
     // create the 'Home' section
@@ -277,7 +299,7 @@ Famous(function(require) {
     meSection.link(meScroll);
 
     // populate the scrollviews
-    var sparks = firebase.child('sparks');
+    var sparks = firebase.child('contacts');
 
     // display the scrollviews when loaded
     sparks.once('value', function() {
@@ -298,22 +320,25 @@ Famous(function(require) {
     var recentTimestampLimit = Date.now() - 90*86400000; // limit to 90 days
     sparks.on('child_added', function(snapshot) {
         var value = snapshot.val();
-        if(value['timestamp'] > recentTimestampLimit) {
-            homeItems.unshift(new SparkItem({content: value}));
-            homeScroll.goToPreviousPage();
-        }
-        if(value['author'] === myAuth['id']) {
-            meItems.splice(1, 0, new SparkItem({content: value}));
-            meScroll.goToPreviousPage();
-        }
-        if(value['content'].indexOf('@') >= 0) {
-            connectItems.unshift(new SparkItem({content: value}));
-            connectScroll.goToPreviousPage();
-        }
-        if(value['content'].indexOf('#') >= 0) {
-            discoverItems.unshift(new SparkItem({content: value}));
-            discoverScroll.goToPreviousPage();
-        }
+        value.contactId = snapshot.name();
+        homeItems.unshift(new SparkItem({content: value}));
+        homeScroll.goToPreviousPage();
+//        if(value['timestamp'] > recentTimestampLimit) {
+//            homeItems.unshift(new SparkItem({content: value}));
+//            homeScroll.goToPreviousPage();
+//        }
+//        if(value['author'] === myAuth['id']) {
+//            meItems.splice(1, 0, new SparkItem({content: value}));
+//            meScroll.goToPreviousPage();
+//        }
+//        if(value['content'].indexOf('@') >= 0) {
+//            connectItems.unshift(new SparkItem({content: value}));
+//            connectScroll.goToPreviousPage();
+//        }
+//        if(value['content'].indexOf('#') >= 0) {
+//            discoverItems.unshift(new SparkItem({content: value}));
+//            discoverScroll.goToPreviousPage();
+//        }
     });
 
     // start on the contact section
