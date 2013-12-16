@@ -6,28 +6,38 @@ var YammerConnector = require('../models/lib/social-connectors/yammer-social-con
 var MainPanelController = new Controller();
 
 MainPanelController.show = function() {
-    if (!this.req.isAuthenticated())
-        return this.res.redirect("/login");
+    console.log(this.req.session);
+    console.log(this.req._passport);
+    var self=this;
+    console.log(self.req.isAuthenticated());
+    if (!this.req.isAuthenticated()) {
+        if (this.req.cookies['parse.token']) {
+            var token=this.req.cookies['parse.token'];
+            console.log(token);
+            Parse.User.become(token, function(user) {
+                if (user) {
+                    self.req.user=user;
+                    self.req.session.passport.user=user.id; // make-up passport session
+                    self.render({ user: self.req.user });
+                }
+                else {
+                    console.log('Error occur when trying to retrive parse user from token!');
+                    self.res.redirect('/login');
+                }
+            });
+            return;
+        }
+        else
+            return this.res.redirect("/login");
+    }
+
+
     console.log("user = " + this.req.user.id + this.req.user.get("email"));
-
-//    var parseUser=Parse.User.current(); //this.req.user is just a reference of Parse.User.current()
-////    console.log(parseUser);
-//    parseUser.initFirebaseRef(parseUser.id, serverRootRef);
-//
-//    // Add connector
-//    var socialConnector=new YammerConnector();
-//    socialConnector.init('1508830799', 'JELIFQKXZ7wlEZgBk3Kamw'); //hardcoded id and token(yammer).
-//    parseUser.addSocialConnector('yammer', socialConnector);
-
-    /*
-    // Import contacts
-    parseUser.importContacts('yammer', function (err) {
-        if (err)
-            return console.log('importContact Fail! Error: ' + e);
-        console.log('importContact Success!');
-    });
-    console.log('importContact Finish..');
-    */
+    if (this.req.session.remember_me=='on') {
+        console.log('Remember Me is checked, setting up cookies...')
+        this.res.cookie('parse.token', this.req.user._sessionToken, {expires: new Date(Date.now() + COOKIE_LIFECYCLE), httpOnly: true});
+        delete this.req.session.remember_me;
+    }
 
     this.render({ user: this.req.user });
 }

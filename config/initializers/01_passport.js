@@ -8,13 +8,16 @@ var Parse = require('parse').Parse;
 
 passport.use(new LocalStrategy({
         //usernameField: 'email'
-
+        passReqToCallback : true
     },
-    function(email, password, done) {
+    function(req, email, password, done) {
         console.log("email - " + email);
         console.log("password - " + password);
         Parse.User.logIn(email, password, {
             success: function(user) {
+                if (req.body.RememberMe)
+                    req.session.remember_me=req.body.RememberMe;
+
                 if (user.get("emailVerified"))
                     return done(null, user);
                 else {

@@ -106,21 +106,28 @@ AccountController.signup = function() {
     });
 }
 
-AccountController.login = function() {
-  var self = this;
-  passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: this.urlFor({ action: 'login' }),
-    failureFlash: true }
-  )(this.__req, this.__res, this.__next);
+AccountController.login = function () {
+    var self = this;
+    passport.authenticate('local', {
+            successRedirect: '/',
+            failureRedirect: this.urlFor({ action: 'login' }),
+            failureFlash: true
+        }
+    )(this.__req, this.__res, this.__next);
 };
 
-AccountController.logout = function() {
+//AccountController.after('login', function(req, res, next) {
+//    console.log(req._passport);
+//    if (next)
+//        next();
+//});
 
-  this.req.logout();
-  Parse.User.logOut();
+AccountController.logout = function () {
+    this.req.logout();
+    Parse.User.logOut();
+    this.res.clearCookie('parse.token');
 
-  this.redirect('/');
+    this.redirect('/');
 };
 
 AccountController.importContacts = function() {
