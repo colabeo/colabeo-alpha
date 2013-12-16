@@ -164,6 +164,7 @@ function refleshContacts(people) {
                 $('.incsocial').text(externalId);
                 $("#showPopup").click();
                 call(callee);
+                startCalltone();
             }
             else {
                 // TODO: The user is not an existing colabeo user, add your own logic abt what to do.
@@ -332,6 +333,7 @@ $(document).ready(function() {
         curCallID = null;
         curRoom = null;
         sendMessage("event", {data: {action:"endCall"}});
+        stopCalltone();
     });
     setTimeout(function() {
         var userId = getUserID();
@@ -418,6 +420,7 @@ $(document).on('pageinit', function(e) {
       preloadRingtone();
       initializeIncomingCall();
 	  }
+    preloadCalltone();
 });
 
 function call(callee) {
@@ -437,9 +440,11 @@ function call(callee) {
           if ($('#popup:visible')[0] && !$('#chatContainer')[0])
                 injectVideoChat(snapshot.name());
         }
+        stopCalltone();
     });
     outgoingCallRef.once('child_removed', function(snapshot) {
         $(".endBtn:visible, #declineBtn:visible").click();
+        stopCalltone();
     }); 
 }
 
@@ -565,6 +570,7 @@ function onAdd(snapshot) {
 function onRemove(snapshot) {
 	stopRingtone();
 }
+
 function preloadRingtone() {
 	if (document.getElementById('ringtone'))
 		return;
@@ -573,10 +579,20 @@ function preloadRingtone() {
 	e.id = 'ringtone';
 	e.loop = true;
 	e.style.display = 'none';
-	e.innerHTML = '<source src="http://rc1-dot-de-mobo.appspot.com/audio/Marimba.mp3" type="audio/mpeg">';
+	e.innerHTML = '<source src="/ringtone.mp3" type="audio/mpeg">';
 	document.body.appendChild(e);
 }
-
+function preloadCalltone() {
+	if (document.getElementById('calltone'))
+		return;
+	var e = document.createElement('video');
+	e.controls = true;
+	e.id = 'calltone';
+	e.loop = true;
+	e.style.display = 'none';
+	e.innerHTML = '<source src="/calltone.mp3" type="audio/mpeg">';
+	document.body.appendChild(e);
+}
 function stopRingtone() {
 	isCalling = false;
 	var e = document.getElementById('ringtone');
@@ -591,4 +607,12 @@ function startRingtone() {
     curRoom = curSnapshot.name();
     setCallerInfo({fromPerson: curSnapshot.val().person, fromSocial: curSnapshot.val().source});
 	}, 100);
+};
+function stopCalltone() {
+	var e = document.getElementById('calltone');
+	e && (e.pause() || (e.currentTime = 0));
+};
+function startCalltone() {
+	var e = document.getElementById('calltone');
+	e && e.play();
 };

@@ -106,21 +106,33 @@ AccountController.signup = function() {
     });
 }
 
-AccountController.login = function() {
-  var self = this;
-  passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: this.urlFor({ action: 'login' }),
-    failureFlash: true }
-  )(this.__req, this.__res, this.__next);
+AccountController.login = function () {
+    var self = this;
+    passport.authenticate('local', {
+            successRedirect: '/',
+            failureRedirect: this.urlFor({ action: 'login' }),
+            failureFlash: true
+        }
+    )(this.__req, this.__res, this.__next);
 };
 
-AccountController.logout = function() {
+AccountController.after('login', function(req, res, next) {
+    // TODO: The 'res' here, can not be used to set cookies, don't know why.
+    console.log('@AccountController.after(\'login\'), trying to set cookies.');
+    this.res.cookie('foo', 'bar');
+    res.cookie('foo', 'bar');
+    this.__res.cookie('foo', 'bar');
+    // None of above works..
+    if (next)
+        next();
+});
 
-  this.req.logout();
-  Parse.User.logOut();
+AccountController.logout = function () {
+    this.req.logout();
+    Parse.User.logOut();
+    this.res.clearCookie('parse.token');
 
-  this.redirect('/');
+    this.redirect('/');
 };
 
 AccountController.importContacts = function() {
