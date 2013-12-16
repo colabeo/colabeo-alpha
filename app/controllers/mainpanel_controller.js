@@ -6,14 +6,11 @@ var YammerConnector = require('../models/lib/social-connectors/yammer-social-con
 var MainPanelController = new Controller();
 
 MainPanelController.show = function() {
-    console.log(this.req.session);
-    console.log(this.req._passport);
     var self=this;
-    console.log(self.req.isAuthenticated());
     if (!this.req.isAuthenticated()) {
         if (this.req.cookies['parse.token']) {
             var token=this.req.cookies['parse.token'];
-            console.log(token);
+            console.log("token from cookie: " + token);
             Parse.User.become(token, function(user) {
                 if (user) {
                     self.req.user=user;
