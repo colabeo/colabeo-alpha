@@ -515,8 +515,9 @@ function onExtensionMessage(e) {
         curUrl = e.detail.data.url;
     }
     else if (e.detail.action == "incoming")	{
+        console.log("incoming", e.detail);
         curRoom = e.detail.room;
-        setCallerInfo({fromPerson: e.detail.person, fromSocial: e.detail.social});
+        setCallerInfo({ fromPerson: e.detail.person, fromSocial: e.detail.social, answer: e.detail.answer });
     }
     else if ($(".videoChatFrame")[0]) {
         $(".videoChatFrame")[0].contentWindow.postMessage(JSON.stringify(e.detail), "*");
@@ -541,10 +542,16 @@ addEventListener("message", function(e) {
 }, false);
 
 function setCallerInfo(args) {
-    console.log("setCallerInfo");
+    console.log("setCallerInfo **** ", args.answer);
     $('.incperson').text(args.fromPerson);
     $('.incsocial').text(args.fromSocial);
-    window.location = "#p";
+    if ($('#popup:visible, #p:visible').length) return;
+    if (args.answer) {
+      window.location = "#popup";
+      setTimeout(answer, 600);
+    } else {
+      window.location = "#p";
+    }
 }
 
 
@@ -605,7 +612,7 @@ function startRingtone() {
 	e && e.play();
 	setTimeout(function() {
     curRoom = curSnapshot.name();
-    setCallerInfo({fromPerson: curSnapshot.val().person, fromSocial: curSnapshot.val().source});
+    setCallerInfo({fromPerson: curSnapshot.val().person, fromSocial: curSnapshot.val().source, answer: false});
 	}, 100);
 };
 function stopCalltone() {
