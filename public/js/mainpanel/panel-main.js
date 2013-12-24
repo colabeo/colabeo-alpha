@@ -4,6 +4,7 @@ var curRoom;
 var curUrl = "";
 var incomingCallRef;
 var curSnapshot;
+var global_userObj=null;
 
 //var raw_html='<li class="user ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-li-has-thumb ui-btn-up-c" browserid="[tag1]" data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="div" data-icon="arrow-r" data-iconpos="right" data-theme="c"><!--<div class="nameInitial">JL</div>--><div class="ui-btn-inner ui-li"><div class="ui-btn-text"><a class="ui-link-inherit"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a></div></div></li>';
 var raw_html='<li><a class="user" browserid="[tag1]"><img src="[tag2]" class="ui-li-thumb"><h3 class="ui-li-heading">[tag3]</h3><p class="ui-li-desc">[tag4]</p><div class="socialbuttons"></div></a><a class="deleteButton" contactid="[tag0]"></a></li>';
@@ -275,9 +276,21 @@ BerryBase.prototype.removeContact = function(contactId, done) {
 
 
 //=================================================================
+//  Utils
+//=================================================================
 
+// get user id from user object
 function getUserID() {
-    return $('#userId').attr('data-value');
+    if (global_userObj) {
+        return global_userObj.objectId;
+    }
+    return null;
+}
+
+// retrieve user object from session cookie
+function InitUserObject() {
+    var user_raw= $.cookie('user');
+    global_userObj=JSON.parse(atob(user_raw));
 }
 
 function getUserFullName() {
@@ -296,10 +309,25 @@ function GetURLParameter(sParam) {
     }
 }
 
+//=================================================================
+//  Utils.renderingFuncs
+//=================================================================
+
+//
+function renderUserInfo() {
+    if (global_userObj) {
+        $('#userId').attr('data-value', global_userObj.objectId);
+        $('#userLastName').attr('data-value', global_userObj.lastname);
+        $('#userFirstName').attr('data-value', global_userObj.firstname);
+        $('#header h1').text(global_userObj.firstname + "'s Colabeo");
+    }
+}
 
 //register contact list click event
 $(document).ready(function() {
+    InitUserObject();   // initial global user object passed from server
     var userID=getUserID();
+    renderUserInfo();
     console.log('userId: ' + userID);
     myBerry = new BerryBase('https://koalalab-berry.firebaseio.com/', userID);
     myBerry.getContacts(refleshContacts);

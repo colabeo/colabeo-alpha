@@ -1,6 +1,7 @@
 var locomotive = require('locomotive');
 var Controller = locomotive.Controller;
 var Parse = require('parse').Parse;
+var Utils = require('../models/lib/utils.js');
 var YammerConnector = require('../models/lib/social-connectors/yammer-social-connector.js');
 
 var MainPanelController = new Controller();
@@ -16,9 +17,9 @@ MainPanelController.show = function() {
                     // set session cookie & render page
                     self.req.user=user;
                     self.req.session.passport.user=user.id; // make-up passport session
-                    var user_base64=btoa(JSON.stringify(self.req.user)); // not real base64 but will do..
-                    self.res.cookie('user', user_base64);
-                    self.render({ user: self.req.user });
+                    console.log(self.req.user);
+                    Utils.setSessionCookie(self.res, 'user', self.req.user);
+                    self.render();
                 }
                 else {
                     console.log('Error occur when trying to retrive parse user from token!');
@@ -38,8 +39,9 @@ MainPanelController.show = function() {
         this.res.cookie('parse.token', this.req.user._sessionToken, {expires: new Date(Date.now() + COOKIE_LIFECYCLE), httpOnly: true});
         delete this.req.session.remember_me;
     }
-
-    this.render({ user: this.req.user });
+    Utils.setSessionCookie(this.res, 'user', this.req.user);
+    console.log(self.req.session.passport.user);
+    this.render();
 }
 
 MainPanelController.famous = function() {
