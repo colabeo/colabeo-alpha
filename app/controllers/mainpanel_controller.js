@@ -7,6 +7,7 @@ var YammerConnector = require('../models/lib/social-connectors/yammer-social-con
 var MainPanelController = new Controller();
 
 MainPanelController.show = function() {
+    Parse.aaaaa.init();
     var self=this;
     if (!this.req.isAuthenticated()) {
         if (this.req.cookies['parse.token']) {
@@ -17,7 +18,6 @@ MainPanelController.show = function() {
                     // set session cookie & render page
                     self.req.user=user;
                     self.req.session.passport.user=user.id; // make-up passport session
-                    console.log(self.req.user);
                     Utils.setSessionCookie(self.res, 'user', self.req.user);
                     self.render();
                 }
