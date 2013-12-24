@@ -13,8 +13,11 @@ MainPanelController.show = function() {
             console.log("token from cookie: " + token);
             Parse.User.become(token, function(user) {
                 if (user) {
+                    // set session cookie & render page
                     self.req.user=user;
                     self.req.session.passport.user=user.id; // make-up passport session
+                    var user_base64=btoa(JSON.stringify(self.req.user)); // not real base64 but will do..
+                    self.res.cookie('user', user_base64);
                     self.render({ user: self.req.user });
                 }
                 else {
