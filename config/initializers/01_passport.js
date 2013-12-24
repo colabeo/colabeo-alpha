@@ -1,11 +1,24 @@
-var passport = require('passport');
+var passport = require('passport')
+    , FacebookStrategy = require('passport-facebook').Strategy
 var LocalStrategy = require('passport-local').Strategy;
 var Account = require('../../app/models/account');
 
 var Parse = require('parse').Parse;
 
-// Use the LocalStrategy within Passport.
+passport.use(new FacebookStrategy({
+        clientID: FACEBOOK_APP_ID,
+        clientSecret: FACEBOOK_APP_SECRET,
+        callbackURL: HOST_SERVER_URL + "/callback/facebook",
+        passReqToCallback: true
+    },
+    function (req, facebookAccessToken, refreshToken, profile, done) {
+        // TODO: add more facebook authenticate logic
+        console.log('Facebook local authentication...');
+        done(null, profile);
+    }
+));
 
+// Use the LocalStrategy within Passport.
 passport.use(new LocalStrategy({
         //usernameField: 'email'
         passReqToCallback : true

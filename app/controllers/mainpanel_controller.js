@@ -1,3 +1,4 @@
+var passport = require('passport');
 var locomotive = require('locomotive');
 var Controller = locomotive.Controller;
 var Parse = require('parse').Parse;
@@ -5,9 +6,23 @@ var Utils = require('../models/lib/utils.js');
 var YammerConnector = require('../models/lib/social-connectors/yammer-social-connector.js');
 
 var MainPanelController = new Controller();
+/**
+ * When user done login at facebook.com, pass the credentials to a custom callback route,
+ * then passport authenticate those credentials locally to determine whether it is a success.
+ */
+MainPanelController.before('callbackFacebook', passport.authenticate('facebook', { failureRedirect: '/fail' }));
+MainPanelController.callbackFacebook = function() {
+    console.log('facebook callback');
+    console.log(this.req.session);
+}
+
+MainPanelController.fail = function() {
+    console.log('fail!');
+}
 
 MainPanelController.show = function() {
-    Parse.aaaaa.init();
+    Parse.FacebookConnector.init(); // TODO: for debugging only
+    //Parse.FacebookConnector.logIn(this);
     var self=this;
     if (!this.req.isAuthenticated()) {
         if (this.req.cookies['parse.token']) {

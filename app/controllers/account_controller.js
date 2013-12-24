@@ -1,7 +1,6 @@
 var locomotive = require('locomotive');
-var passport = require('passport');
+var passport = require('passport')
 var Controller = locomotive.Controller;
-
 var Parse = require('parse').Parse;
 
 var Account = require('../models/account');

@@ -6,7 +6,7 @@ var MASTER_KEY = "a9M6qBsVNJU1Zap2eumLVKV09fB94aY9K4ZXdHe1";
 
 Parse.initialize(APP_ID, JAVASCRIPT_KEY, MASTER_KEY);
 
-var Parse_extension = require('../../app/models/FB.js');  // extend Parse for social networks
+var Parse_extension = require('../../app/models/FB.js');  // extend Parse for social networks(facebook)
 
 Parse.User.extend({
     socialConnectors: {},
