@@ -1,5 +1,6 @@
 var passport = require('passport');
 var Parse = require('parse').Parse;
+var Utils = require('../../app/models/lib/utils.js');
 
 module.exports = function () {
     /**
@@ -89,11 +90,18 @@ module.exports = function () {
          * Pops up a window and let user login to social networks, creates entry to Parse.
          * @param sender - locomotive controller
          */
-        logIn: function(sender) {
+        logIn: function(sender, callback) {
             // TODO: Make it open a a window, so won't jam the main_panel's req&res
+            var promise=new Parse.Promise();
+            var key=Utils.generateUniqueKey();
+            sender.req.session.key=key;
+            Utils.storeObjectWithKey(promise, key);
             passport.authenticate('facebook')(sender.__req, sender.__res, sender.__next);
-            //            passport.authenticate('facebook')(sender.__req, sender.__res, sender.__next);
+            promise.done(function(result) {
+                callback(result);
+            });
         },
+
         link: function() {
             passport.authenticate('facebook')(sender.__req, sender.__res, sender.__next);
         },

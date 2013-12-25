@@ -323,6 +323,11 @@ function renderUserInfo() {
     }
 }
 
+function popupWindow(url) {
+    var newWin=window.open(url, 'facebook', 'height=600, width=400');
+    if (window.focus) { newWin.focus(); }
+}
+
 //register contact list click event
 $(document).ready(function() {
     InitUserObject();   // initial global user object passed from server
@@ -333,6 +338,10 @@ $(document).ready(function() {
     myBerry.getContacts(refleshContacts);
 
     var userFullName = getUserFullName();
+
+    $('#connect_facebook').on('click', function() {
+        popupWindow('/auth/facebook');
+    });
 
     //$('.ui-input-text.ui-body-c').attr('placeholder', 'Welcome, ' + userFullName.split(' ')[0] + '!');
     $('.ui-input-text.ui-body-c').attr('placeholder', 'Search');

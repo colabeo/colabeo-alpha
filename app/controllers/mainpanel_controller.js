@@ -12,10 +12,7 @@ MainPanelController.fail = function() {
 }
 
 MainPanelController.show = function() {
-    //console.log(Parse.User._authProviders);
-    Parse.FacebookConnector.logIn(this);
     var self=this;
-    return;
     if (!this.req.isAuthenticated()) {
         if (this.req.cookies['parse.token']) {
             var token=this.req.cookies['parse.token'];
@@ -52,9 +49,9 @@ MainPanelController.show = function() {
 }
 
 MainPanelController.famous = function() {
+    Utils.print();
     if (!this.req.isAuthenticated())
         return this.res.redirect("/login");
-
     //this.user = this.req.user;
     this.render('famous');
 }

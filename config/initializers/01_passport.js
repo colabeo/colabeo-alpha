@@ -18,7 +18,7 @@ module.exports = function () {
         function (req, facebookAccessToken, refreshToken, profile, done) {
             // TODO: add more facebook authenticate logic
             console.log('Facebook local authentication...');
-            console.log(req.session);
+            //console.log(req.session);
             done(null, profile);
         }
     ));
@@ -55,7 +55,7 @@ module.exports = function () {
     // Passport session setup.
     passport.serializeUser(function (user, done) {
         console.log("user - ", user.id);
-        done(null, user.id);
+        done(null, user.id); // TODO: pass facebook id as well
     });
 
     passport.deserializeUser(function (id, done) {
@@ -65,6 +65,9 @@ module.exports = function () {
                 console.log("deserializerUser - user id - " + id);
                 console.log("deserializerUser - parse user - " + JSON.stringify(user));
                 done(null, user);
+            },
+            error: function(err) {
+                console.log(err);   // TODO: occurs when trying to query an non-existing user id, need some time to fix that
             }
         });
     });
