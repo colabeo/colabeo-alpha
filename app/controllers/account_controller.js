@@ -115,16 +115,16 @@ AccountController.login = function () {
     )(this.__req, this.__res, this.__next);
 };
 
-AccountController.after('login', function(req, res, next) {
-    // TODO: The 'res' here, can not be used to set cookies, don't know why.
-    console.log('@AccountController.after(\'login\'), trying to set cookies.');
-    this.res.cookie('foo', 'bar');
-    res.cookie('foo', 'bar');
-    this.__res.cookie('foo', 'bar');
-    // None of above works..
-    if (next)
-        next();
-});
+//AccountController.after('login', function(req, res, next) {
+//    // TODO: The 'res' here, can not be used to set cookies, don't know why.
+//    console.log('@AccountController.after(\'login\'), trying to set cookies.');
+//    this.res.cookie('foo', 'bar');
+//    res.cookie('foo', 'bar');
+//    this.__res.cookie('foo', 'bar');
+//    // None of above works..
+//    if (next)
+//        next();
+//});
 
 AccountController.logout = function () {
     this.req.logout();

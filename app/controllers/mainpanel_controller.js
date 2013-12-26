@@ -42,6 +42,8 @@ MainPanelController.show = function() {
 
 
     console.log("@mainpanel.show() - user = " + this.req.user.id + ' email= ' + this.req.user.get("email"));
+//    self.req.session.passport.user=Utils.makeupSessionUser(this.req.user);
+    // set cookies
     if (this.req.session.remember_me=='on') {
         console.log('@mainpanel.show() - Remember Me is checked, setting up cookies...')
         this.res.cookie('parse.token', this.req.user._sessionToken, {expires: new Date(Date.now() + COOKIE_LIFECYCLE), httpOnly: true});
