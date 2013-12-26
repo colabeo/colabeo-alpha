@@ -13,14 +13,14 @@ function closeWindow(res) {
 AuthController.authFacebook = function() {
     Parse.FacebookUtility.logIn(this, {
         success: function(result) {
-            console.log("facebook auth done!");
+            console.log("@AuthController.authFacebook() - facebook auth done!");
             if (!Parse.User.current()) {
-                console.log('You haven\'t logged in to Parse yet!');
+                console.log('@AuthController.authFacebook() - You haven\'t logged in to Parse yet!');
                 return;
             }
             Parse.FacebookUtility.link(result);
-            console.log('Is Linked: ' +Parse.FacebookUtility.isLinked());
-            console.log('Query for ' + result.id + ' : ');
+            console.log('@AuthController.authFacebook() - Is Linked: ' +Parse.FacebookUtility.isLinked());
+            console.log('@AuthController.authFacebook() - Query for ' + result.id + ' : ');
             Parse.FacebookUtility.query(result.id, function(result_array) {
                 console.log(result_array);
             });
@@ -41,7 +41,7 @@ AuthController.authFacebook = function() {
 
 AuthController.before('callbackFacebook', passport.authenticate('facebook', { failureRedirect: '/fail' }));
 AuthController.callbackFacebook = function() {
-    console.log('facebook callback');
+    console.log('@AuthController.callbackFacebook() - facebook callback');
     var key=this.req.session.key;
     var promise=Utils.findObjectWithKey(key);
     Utils.removeObjectWithKey(key);
