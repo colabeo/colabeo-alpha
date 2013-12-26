@@ -11,8 +11,8 @@ function closeWindow(res) {
 
 
 AuthController.authFacebook = function() {
-    Parse.FacebookConnector.logIn(this, function(result) {
-        console.log(result);
+    Parse.FacebookUtility.logIn(this, function(result) {
+        //console.log(result);
         console.log("facebook auth done!");
     });
 }
