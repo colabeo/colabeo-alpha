@@ -13,6 +13,7 @@ function closeWindow(res) {
 AuthController.authFacebook = function() {
     Parse.FacebookUtility.logIn(this, {
         success: function(result) {
+            console.log("facebook auth done!");
             if (!Parse.User.current()) {
                 console.log('You haven\'t logged in to Parse yet!');
                 return;
@@ -22,7 +23,6 @@ AuthController.authFacebook = function() {
             console.log('Query for ' + result.id + ' : ');
             Parse.FacebookUtility.query(result.id, function(result_array) {
                 console.log(result_array);
-                console.log("facebook auth done!");
             });
         },
         error: function(err) {
