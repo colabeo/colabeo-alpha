@@ -279,6 +279,18 @@ BerryBase.prototype.removeContact = function(contactId, done) {
 //  Utils
 //=================================================================
 
+// check social network connection status
+function checkStatus() {
+    var jsonUrl = 'ajax/status';
+    console.log(jsonUrl);
+    $.getJSON(jsonUrl, function(data) {
+        console.log(data);
+    })
+        .fail(function() {
+            console.log('ajax.checkStatus() Fail!');
+        });
+}
+
 // get user id from user object
 function getUserID() {
     if (global_userObj) {
