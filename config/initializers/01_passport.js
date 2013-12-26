@@ -17,15 +17,17 @@ module.exports = function () {
         },
         function (req, facebookAccessToken, refreshToken, profile, done) {
             console.log('Facebook local authentication...');
-            profile.access_token=facebookAccessToken;
-            profile.expiresIn=1000000;
-            delete profile._raw;
-            delete profile._json;
+            var account={
+                provider: 'facebook',
+                id: profile.id,
+                access_token: facebookAccessToken,
+                username: profile.username
+            }
             if (!req.user) { req.user={}; }
             if (!req.user.id) { req.user.id=profile.id; }
             // TODO: add authData to Parse User instance
-            if (!req.user.authData) {req.user.authData={}; }
-            req.user.authData.facebook=profile;
+            if (!req.user.accounts) {req.user.accounts={}; }
+            req.user.accounts.facebook=account;
             done(null, req.user);
         }
     ));

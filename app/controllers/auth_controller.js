@@ -11,9 +11,23 @@ function closeWindow(res) {
 
 
 AuthController.authFacebook = function() {
-    Parse.FacebookUtility.logIn(this, function(result) {
-        //console.log(result);
-        console.log("facebook auth done!");
+    Parse.FacebookUtility.logIn(this, {
+        success: function(result) {
+            if (!Parse.User.current()) {
+                console.log('You haven\'t logged in to Parse yet!');
+                return;
+            }
+            Parse.FacebookUtility.link(result);
+            console.log('Is Linked: ' +Parse.FacebookUtility.isLinked());
+            console.log('Query for ' + result.id + ' : ');
+            Parse.FacebookUtility.query(result.id, function(result_array) {
+                console.log(result_array);
+                console.log("facebook auth done!");
+            });
+        },
+        error: function(err) {
+            console.log(err);
+        }
     });
 }
 
@@ -32,7 +46,7 @@ AuthController.callbackFacebook = function() {
     var promise=Utils.findObjectWithKey(key);
     Utils.removeObjectWithKey(key);
     delete this.req.session.key;
-    promise.resolve(this.req.user);
+    promise.resolve(this.req.user.accounts.facebook);
     closeWindow(this.res);
 }
 
