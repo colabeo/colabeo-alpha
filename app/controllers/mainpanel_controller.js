@@ -21,7 +21,7 @@ MainPanelController.show = function() {
                 if (user) {
                     // set session cookie & render page
                     self.req.user=user;
-                    self.req.session.passport.user=user.id; // make-up passport session
+                    self.req.session.passport.user=user // make-up passport session
                     Utils.setSessionCookie(self.res, 'user', self.req.user);
                     self.render();
                 }
@@ -37,14 +37,14 @@ MainPanelController.show = function() {
     }
 
 
-    console.log("user = " + this.req.user.id + this.req.user.get("email"));
+    console.log("@mainpanel.show() user = " + this.req.user.id + ' email= ' + this.req.user.get("email"));
     if (this.req.session.remember_me=='on') {
         console.log('Remember Me is checked, setting up cookies...')
         this.res.cookie('parse.token', this.req.user._sessionToken, {expires: new Date(Date.now() + COOKIE_LIFECYCLE), httpOnly: true});
         delete this.req.session.remember_me;
     }
     Utils.setSessionCookie(this.res, 'user', this.req.user);
-    console.log(self.req.session.passport.user);
+    console.log(self.req.session.passport);
     this.render();
 }
 

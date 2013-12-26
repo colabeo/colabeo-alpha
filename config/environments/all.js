@@ -24,6 +24,7 @@ module.exports = function() {
   this.use(express.cookieParser());
   this.use(express.bodyParser());
   this.use(express.methodOverride());
+  this.use(express.static(require('path').resolve(__dirname + "/../../public")));
   this.use(express.session({ secret: 'keyboard cat' }));
   this.use(flash());
 
@@ -33,7 +34,6 @@ module.exports = function() {
 
 
   this.use(this.router);
-  this.use(express.static(require('path').resolve(__dirname + "/../../public")));
 
   //this.datastore(require('locomotive-mongoose'));
 };

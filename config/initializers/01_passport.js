@@ -63,15 +63,17 @@ module.exports = function () {
 
     // Passport session setup.
     passport.serializeUser(function (user, done) {
-        console.log("user - ", user.id);
-        done(null, user.id); // TODO: pass facebook id as well
+        console.log("SerializerUser - user - ", user.id);
+        done(null, user); // TODO: pass facebook id as well
+//        done(null, user.id); // TODO: pass facebook id as well
     });
 
-    passport.deserializeUser(function (id, done) {
+    passport.deserializeUser(function (obj, done) {
+//        console.log(obj);
         var query = new Parse.Query(Parse.User);
-        query.get(id, {
+        query.get(obj.objectId, {
             success: function (user) {
-                console.log("deserializerUser - user id - " + id);
+                console.log("deserializerUser - user id - " + obj.objectId);
                 console.log("deserializerUser - parse user - " + JSON.stringify(user));
                 done(null, user);
             },
@@ -80,4 +82,18 @@ module.exports = function () {
             }
         });
     });
+
+//    passport.deserializeUser(function (id, done) {
+//        var query = new Parse.Query(Parse.User);
+//        query.get(id, {
+//            success: function (user) {
+//                console.log("deserializerUser - user id - " + id);
+//                console.log("deserializerUser - parse user - " + JSON.stringify(user));
+//                done(null, user);
+//            },
+//            error: function(err) {
+//                console.log(err);   // TODO: occurs when trying to query an non-existing user id, need some time to fix that
+//            }
+//        });
+//    });
 }
