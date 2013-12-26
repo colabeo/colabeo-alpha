@@ -27,6 +27,7 @@ module.exports = function () {
             if (!req.user.id) { req.user.id=profile.id; }   // TODO: remove this
             if (!req.user.accounts) {req.user.accounts={}; }
             req.user.accounts.facebook=account; // This will be the current facebook user, differ from session facebook user, which is binding to Parse user.
+            req.session.passport.user.facebook=account; // adding credentials to passport session
             done(null, req.user);
         }
     ));

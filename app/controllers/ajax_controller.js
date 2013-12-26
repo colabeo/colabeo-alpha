@@ -12,10 +12,10 @@ AjaxController.checkStatus = function() {
     if (!this.req.session.passport.user)
         return; // Let it fail.
     console.log('@AjaxController.checkStatus - called');
-    if (this.req.session.passport.user.accounts) {
-        this.res.json(this.req.session.passport.user.accounts);
-    }
-    return;
+    if (this.req.session.passport.user.accounts)
+        return this.res.json(this.req.session.passport.user.accounts);
+    else
+        return this.res.json({});
 }
 
 module.exports = AjaxController;
