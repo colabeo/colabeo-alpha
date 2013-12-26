@@ -12,6 +12,7 @@ function closeWindow(res) {
 
 AuthController.authFacebook = function() {
     Parse.FacebookConnector.logIn(this, function(result) {
+        console.log(result);
         console.log("facebook auth done!");
     });
 }
@@ -31,7 +32,7 @@ AuthController.callbackFacebook = function() {
     var promise=Utils.findObjectWithKey(key);
     Utils.removeObjectWithKey(key);
     delete this.req.session.key;
-    promise.resolve(this);
+    promise.resolve(this.req.user);
     closeWindow(this.res);
 }
 

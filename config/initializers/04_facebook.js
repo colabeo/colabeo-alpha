@@ -6,57 +6,36 @@ module.exports = function () {
     /**
      * Facebook Provider, use Passport to authenticate
      */
+    var initOptions;
     var provider = {
-        authenticate: function(options) {
+        authenticate: function(sender, options) {
             var self = this;
-            FB.login(function(response) {
-                if (response.authResponse) {
+            var promise=new Parse.Promise();
+            var key=Utils.generateUniqueKey();
+            sender.req.session.key=key;
+            Utils.storeObjectWithKey(promise, key);
+            passport.authenticate('facebook')(sender.__req, sender.__res, sender.__next);
+            promise.done(function(result) {
+                if (result.id) {
                     if (options.success) {
                         options.success(self, {
-                            id: response.authResponse.userID,
-                            access_token: response.authResponse.accessToken,
-                            expiration_date: new Date(response.authResponse.expiresIn * 1000 +
-                                (new Date()).getTime()).toJSON()
+                            id: result.id,
+                            access_token:result.access_token,
+                            expiration_date: new Date(result.expiresIn*1000 + (new Date()).getTime()).toJSON()
                         });
                     }
                 } else {
                     if (options.error) {
-                        options.error(self, response);
+                        options.error(self, result);
                     }
                 }
-            }, {
-                scope: requestedPermissions
             });
         },
         /**
-         * Restore authentication from Facebook token
+         * Restore authentication from Facebook, do nothing ,just a placeholder
          */
         restoreAuthentication: function(authData) {
-            if (authData) {
-                var authResponse = {
-                    userID: authData.id,
-                    accessToken: authData.access_token,
-                    expiresIn: (Parse._parseDate(authData.expiration_date).getTime() -
-                        (new Date()).getTime()) / 1000
-                };
-                var newOptions = _.clone(initOptions);
-                newOptions.authResponse = authResponse;
-
-                // Suppress checks for login status from the browser.
-                newOptions.status = false;
-
-                // If the user doesn't match the one known by the FB SDK, log out.
-                // Most of the time, the users will match -- it's only in cases where
-                // the FB SDK knows of a different user than the one being restored
-                // from a Parse User that logged in with username/password.
-                var existingResponse = FB.getAuthResponse();
-                if (existingResponse &&
-                    existingResponse.userID !== authResponse.userID) {
-                    FB.logout();
-                }
-
-                FB.init(newOptions);
-            }
+            console.log(authData);
             return true;
         },
         getAuthType: function() {
@@ -91,7 +70,7 @@ module.exports = function () {
          * @param sender - locomotive controller
          */
         logIn: function(sender, callback) {
-            // TODO: Make it open a a window, so won't jam the main_panel's req&res
+            // TODO: login to facebook and link credentials with parse user
             var promise=new Parse.Promise();
             var key=Utils.generateUniqueKey();
             sender.req.session.key=key;
@@ -102,7 +81,8 @@ module.exports = function () {
             });
         },
 
-        link: function() {
+        link: function(user) {
+            // TODO: link parse user with
             passport.authenticate('facebook')(sender.__req, sender.__res, sender.__next);
         },
 

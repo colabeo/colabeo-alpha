@@ -8212,7 +8212,7 @@
                             access_token: response.authResponse.accessToken,
                             expiration_date: new Date(response.authResponse.expiresIn * 1000 +
                                 (new Date()).getTime()).toJSON()
-                        });
+                    });
                     }
                 } else {
                     if (options.error) {

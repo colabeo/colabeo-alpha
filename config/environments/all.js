@@ -2,9 +2,10 @@ var express = require('express');
 var passport = require('passport');
 var flash = require('connect-flash');
 
-function aa(req, res, next) {
-    //req.session.passport={};
-//    console.log(req.session);
+/**
+ * For debugging purpose
+ */
+function testMiddleware(req, res, next) {
     next();
 }
 
@@ -27,7 +28,7 @@ module.exports = function() {
   this.use(flash());
 
   this.use(passport.initialize());
-  this.use(aa);
+  this.use(testMiddleware);
   this.use(passport.session());
 
 

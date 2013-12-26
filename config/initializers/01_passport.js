@@ -16,10 +16,16 @@ module.exports = function () {
             passReqToCallback: true
         },
         function (req, facebookAccessToken, refreshToken, profile, done) {
-            // TODO: add more facebook authenticate logic
             console.log('Facebook local authentication...');
-            //console.log(req.session);
-            done(null, profile);
+            profile.access_token=facebookAccessToken;
+            profile.expiresIn=1000000;
+            delete profile._raw;
+            delete profile._json;
+            if (!req.user) { req.user={}; }
+            if (!req.user.authData) {req.user.authData={}; }
+            req.user.authData.facebook=profile;
+            console.log(req.user);
+            done(null, req.user);
         }
     ));
 
@@ -54,6 +60,7 @@ module.exports = function () {
 
     // Passport session setup.
     passport.serializeUser(function (user, done) {
+        console.log(user);
         console.log("user - ", user.id);
         done(null, user.id); // TODO: pass facebook id as well
     });
