@@ -2,6 +2,7 @@ var passport = require('passport')
     , FacebookStrategy = require('passport-facebook').Strategy
 var LocalStrategy = require('passport-local').Strategy;
 var Account = require('../../app/models/account');
+var Utils = require('../../app/models/lib/utils.js');
 
 var Parse = require('parse').Parse;
 
@@ -20,14 +21,12 @@ module.exports = function () {
             var account={
                 provider: 'facebook',
                 id: profile.id,
-                access_token: facebookAccessToken,
-                username: profile.username
+                access_token: facebookAccessToken
             }
             if (!req.user) { req.user={}; }
-            if (!req.user.id) { req.user.id=profile.id; }
-            // TODO: add authData to Parse User instance
+            if (!req.user.id) { req.user.id=profile.id; }   // TODO: remove this
             if (!req.user.accounts) {req.user.accounts={}; }
-            req.user.accounts.facebook=account;
+            req.user.accounts.facebook=account; // This will be the current facebook user, differ from session facebook user, which is binding to Parse user.
             done(null, req.user);
         }
     ));
@@ -61,39 +60,20 @@ module.exports = function () {
         }
     ));
 
-    // Passport session setup.
+    // setup req.session.passport.user
     passport.serializeUser(function (user, done) {
-        console.log("SerializerUser - user - ", user.id);
-        done(null, user); // TODO: pass facebook id as well
-//        done(null, user.id); // TODO: pass facebook id as well
+        var session_user=Utils.makeupSessionUser(user);
+        console.log("Serialize User..");
+        //console.log(' - ', session_user);
+        done(null, session_user); // TODO: pass facebook id as well
     });
 
+    // repopulate req.user
     passport.deserializeUser(function (obj, done) {
-//        console.log(obj);
-        var query = new Parse.Query(Parse.User);
-        query.get(obj.objectId, {
-            success: function (user) {
-                console.log("deserializerUser - user id - " + obj.objectId);
-                console.log("deserializerUser - parse user - " + JSON.stringify(user));
-                done(null, user);
-            },
-            error: function(err) {
-                console.log(err);   // TODO: occurs when trying to query an non-existing user id, need some time to fix that
-            }
+        console.log('De-serialize User..');
+        //console.log(' - ', obj);
+        Parse.User.become(obj.access_token, function(user) {
+            done(null, user);   // If no access_token provided or access_token is invalid, user will be Parse.User.current() as default.
         });
     });
-
-//    passport.deserializeUser(function (id, done) {
-//        var query = new Parse.Query(Parse.User);
-//        query.get(id, {
-//            success: function (user) {
-//                console.log("deserializerUser - user id - " + id);
-//                console.log("deserializerUser - parse user - " + JSON.stringify(user));
-//                done(null, user);
-//            },
-//            error: function(err) {
-//                console.log(err);   // TODO: occurs when trying to query an non-existing user id, need some time to fix that
-//            }
-//        });
-//    });
 }

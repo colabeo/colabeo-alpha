@@ -6,6 +6,9 @@ var flash = require('connect-flash');
  * For debugging purpose
  */
 function testMiddleware(req, res, next) {
+    console.log("@testMiddleware:");
+    console.log(req.session);
+    console.log("@testMiddleware ---------------");
     next();
 }
 
@@ -25,11 +28,9 @@ module.exports = function() {
   this.use(express.bodyParser());
   this.use(express.methodOverride());
   this.use(express.static(require('path').resolve(__dirname + "/../../public")));
-  this.use(express.session({ secret: 'keyboard cat' }));
+  this.use(express.session({ secret: 'colabeo lab' }));    // this part will parse the user data(.id -> .objectId)
   this.use(flash());
-
   this.use(passport.initialize());
-  this.use(testMiddleware);
   this.use(passport.session());
 
 

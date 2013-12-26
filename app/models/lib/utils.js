@@ -51,5 +51,22 @@ Utils.setSessionCookie = function(res, name, value) {
     res.cookie(name, val_base64);
 }
 
+/**
+ * Make a user-like object for session storage
+ * @param user - real user object, either comes from Parse or passport
+ */
+Utils.makeupSessionUser = function(user) {
+    var session_user={
+        id:user.id,
+        access_token: user.access_token ? user.access_token:user._sessionToken
+    }
+    if (user.attributes.facebook) {
+        session_user.accounts={}
+        var facebook_obj=JSON.parse(user.attributes.facebook);
+        session_user.accounts.facebook=facebook_obj;
+    }
+    return session_user;
+}
+
 module.exports = Utils;
 
