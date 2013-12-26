@@ -12,17 +12,17 @@ function closeWindow(res) {
 
 AuthController.authFacebook = function() {
     Parse.FacebookUtility.logIn(this, {
-        success: function(result) {
+        success: function(authData) {
             console.log("@AuthController.authFacebook() - facebook auth done!");
             if (!Parse.User.current()) {
                 console.log('@AuthController.authFacebook() - You haven\'t logged in to Parse yet!');
                 return;
             }
-            Parse.FacebookUtility.link(result);
+            Parse.FacebookUtility.link(authData);
             console.log('@AuthController.authFacebook() - Is Linked: ' +Parse.FacebookUtility.isLinked());
-            console.log('@AuthController.authFacebook() - Query for ' + result.id + ' : ');
-            Parse.FacebookUtility.query(result.id, function(result_array) {
-                console.log(result_array);
+            console.log('@AuthController.authFacebook() - Query for ' + authData.id + ' : ');
+            Parse.FacebookUtility.query(authData.id, function(user_array) {
+                console.log(user_array);
             });
         },
         error: function(err) {
