@@ -14,6 +14,7 @@ AuthController.authFacebook = function() {
     Parse.FacebookUtility.logIn(this, {
         success: function(authData) {
             console.log("@AuthController.authFacebook() - facebook auth done!");
+            console.log(this.req.session);  // this session haven't update yet
             if (!Parse.User.current()) {
                 console.log('@AuthController.authFacebook() - You haven\'t logged in to Parse yet!');
                 return;
@@ -21,6 +22,11 @@ AuthController.authFacebook = function() {
             Parse.FacebookUtility.link(authData);
             console.log('@AuthController.authFacebook() - Is Linked: ' +Parse.FacebookUtility.isLinked());
             console.log('@AuthController.authFacebook() - Query for ' + authData.id + ' : ');
+            /**
+             * NOTE:
+             * If a user is newly authenticated, there won't be any data shown on query,
+             * because Parse haven't save it yet.
+             */
             Parse.FacebookUtility.query(authData.id, function(user_array) {
                 console.log(user_array);
             });

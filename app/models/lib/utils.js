@@ -60,8 +60,13 @@ Utils.makeupSessionUser = function(user) {
         id:user.id,
         access_token: user.access_token ? user.access_token:user._sessionToken
     }
-    if (user.attributes.facebook) {
-        session_user.accounts={}
+    if (user.accounts) {   // sync local social-network's credentials to session
+        session_user.accounts={};
+        if (user.accounts.facebook)
+            session_user.accounts.facebook=user.accounts.facebook;
+    }
+    else if (user.attributes.facebook) {    // if no local social-network's credentials were found, sync stored credentials instead
+        session_user.accounts={};
         var facebook_obj=JSON.parse(user.attributes.facebook);
         session_user.accounts.facebook=facebook_obj;
     }

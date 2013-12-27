@@ -24,10 +24,8 @@ module.exports = function () {
                 access_token: facebookAccessToken
             }
             if (!req.user) { req.user={}; }
-            if (!req.user.id) { req.user.id=profile.id; }   // TODO: remove this
-            if (!req.user.accounts) {req.user.accounts={}; }
+            if (!req.user.accounts) { req.user.accounts={}; }
             req.user.accounts.facebook=account; // This will be the current facebook user, differ from session facebook user, which is binding to Parse user.
-            req.session.passport.user.facebook=account; // adding credentials to passport session
             done(null, req.user);
         }
     ));
@@ -63,8 +61,8 @@ module.exports = function () {
 
     // setup req.session.passport.user
     passport.serializeUser(function (user, done) {
-        var session_user=Utils.makeupSessionUser(user);
         console.log("Serialize User..");
+        var session_user=Utils.makeupSessionUser(user);
         //console.log(' - ', session_user);
         done(null, session_user); // TODO: pass facebook id as well
     });
