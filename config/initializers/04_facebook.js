@@ -9,8 +9,7 @@ module.exports = function () {
          * @param user  - Parser.User
          */
         isLinked: function(user) {
-            if (!user)
-                user=Parse.User.current();
+            user = user || Parse.User.current();
             return !!user.attributes.facebook;
         },
 
@@ -45,8 +44,8 @@ module.exports = function () {
             });
         },
 
-        link: function(result) {
-            var user=Parse.User.current();
+        link: function(result, user) {
+            user = user || Parse.User.current();
             if (Parse._.isString(result))
                 user.set('facebook', result);
             else
@@ -56,10 +55,11 @@ module.exports = function () {
 
         /**
          * logout from this social network, delete entry from Parse.
-         * @param sender - locomotive controller
          */
-        unlink: function(sender) {
-            sender.req.logout();
+        unlink: function(user) {
+            user = user || Parse.User.current();
+            user.unset('facebook');
+            user.save();
         }
     }
 }

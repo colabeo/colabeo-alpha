@@ -241,9 +241,14 @@ function GetURLParameter(sParam) {
 
 function renderSocialNetworkButton() {
     checkStatus(function(status) {
-        if (status && !$.isEmptyObject(status)) {
-            console.log(status);
-
+        if (status) {
+            if (status.facebook) {
+                $('#link_facebook').css('display', 'none');
+                $('#unlink_facebook').css('display', 'inline-block');
+            } else {
+                $('#link_facebook').css('display', 'inline-block');
+                $('#unlink_facebook').css('display', 'none');
+            }
         }
     });
 }
@@ -278,7 +283,19 @@ $(document).ready(function() {
     var userFullName = getUserFullName();
 
     $('#unlink_facebook').on('click', function() {
-        popupWindow('/de-auth/facebook');
+        $.ajax({
+            url: '/de-auth/facebook',
+            type: 'post',
+            dataType: 'json',
+            data: $('#addContactForm').serialize(),
+            success: function(data) {
+                if (data==='done') {
+                    renderSocialNetworkButton();
+                    console.log("de-auth facebook success");
+                    renderSocialNetworkButton();
+                }
+            }
+        });
     });
 
     $('#link_facebook').on('click', function() {

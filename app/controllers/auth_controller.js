@@ -9,6 +9,23 @@ function closeWindow(res) {
     res.send("<script>window.close()</script>");
 }
 
+AuthController.deAuthFacebook = function() {
+    console.log('@AuthController.deAuthFacebook() - called');
+    // clean req,user
+    if (this.req.user.accounts && this.req.user.accounts.facebook) {
+        delete this.req.user.facebook;
+    }
+    // clean session
+    if (this.req.session.passport.user.accounts && this.req.session.passport.user.accounts.facebook) {
+        delete this.req.session.passport.user.accounts.facebook;
+    }
+    // unlink from current Parse user
+    if (Parse.FacebookUtility.isLinked()) {
+        Parse.FacebookUtility.unlink();
+    }
+    // TODO: add is Empty check
+    return this.res.json('done');
+}
 
 AuthController.authFacebook = function() {
     Parse.FacebookUtility.logIn(this, {

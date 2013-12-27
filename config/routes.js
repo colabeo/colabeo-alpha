@@ -4,9 +4,10 @@ module.exports = function routes() {
   this.match('main', 'mainpanel#show', { via: 'get' });
   this.match('famous', 'mainpanel#famous', { via: 'get' });
   this.match('fail', 'mainpanel#fail', { via: 'get' });
+  this.match('de-auth/facebook', 'auth#deAuthFacebook', { via: 'post' });    // ajax call
   this.match('auth/facebook', 'auth#authFacebook', { via: 'get' });
   this.match('callback/facebook', 'auth#callbackFacebook', { via: 'get' });
-  this.match('ajax/status', 'ajax#checkStatus', { via: 'get' });
+  this.match('ajax/status', 'ajax#checkStatus', { via: 'get' });    // ajax call
   //this.match('index', 'account#loginForm', { via: 'get' });
   this.match('register', 'account#registrationForm', { via: 'get' });
   this.match('signup', 'account#signup', { via: 'post' });
